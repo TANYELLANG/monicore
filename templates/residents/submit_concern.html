@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Submit Concern{% endblock %}
+{% block page_label %}Resident{% endblock %}
+{% block page_title %}Submit a Concern{% endblock %}
+
+{% block sidebar %}
+  {% include 'components/sidebar_resident.html' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="mc-form-wrap">
+  <div class="mc-panel">
+    <div class="mc-panel-head">
+      <h2 class="mc-panel-title">Report an Issue</h2>
+      <span style="font-size:13px; color:var(--text-muted);">Report engineering-related issues in your unit</span>
+    </div>
+    <div class="mc-panel-body">
+
+      <form method="POST" action="{% url 'resident_submit' %}">
+        {% csrf_token %}
+
+        <div class="mc-form-group" style="margin-bottom:16px;">
+          <label class="mc-label">Your Name</label>
+          <input class="mc-input mc-input--full" type="text"
+                 value="{{ user.get_full_name|default:user.username }}" readonly
+                 style="background:#f9fafb; color:var(--text-muted);">
+        </div>
+
+        <div class="mc-form-group" style="margin-bottom:16px;">
+          <label class="mc-label">Concern Title <span class="mc-required">*</span></label>
+          <input class="mc-input mc-input--full" type="text" name="title"
+                 placeholder="Brief title of the issue" required>
+        </div>
+
+        <div class="mc-form-group" style="margin-bottom:16px;">
+          <label class="mc-label">Concern Type <span class="mc-required">*</span></label>
+          <select class="mc-select mc-select--full" name="type" required>
+            <option value="">-- Select Type --</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="Electrical">Electrical</option>
+            <option value="HVAC">HVAC</option>
+            <option value="Structural">Structural</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="mc-form-group" style="margin-bottom:16px;">
+          <label class="mc-label">Description <span class="mc-required">*</span></label>
+          <textarea class="mc-textarea" name="description"
+                    placeholder="Please provide detailed information about the issue..." required></textarea>
+        </div>
+
+        <div style="margin: 24px 0 8px; font-weight:600; color:var(--text-dark); font-size:14px;">
+          Schedule Availability
+        </div>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+          Let us know your preferred time so our team can schedule an inspection.
+        </div>
+
+        <div class="mc-form-row" style="margin-bottom:16px;">
+          <div class="mc-form-group">
+            <label class="mc-label">Preferred Date <span class="mc-required">*</span></label>
+            <input class="mc-input mc-input--full" type="date" name="preferred_date" required>
+          </div>
+          <div class="mc-form-group">
+            <label class="mc-label">Preferred Time Slot <span class="mc-required">*</span></label>
+            <select class="mc-select mc-select--full" name="preferred_time" required>
+              <option value="">-- Select Time --</option>
+              <option value="Morning (8AM - 12PM)">Morning (8AM – 12PM)</option>
+              <option value="Afternoon (1PM - 5PM)">Afternoon (1PM – 5PM)</option>
+              <option value="Evening (6PM - 8PM)">Evening (6PM – 8PM)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mc-form-group" style="margin-bottom:16px;">
+          <label class="mc-label">Additional Notes <span style="color:var(--text-muted); font-weight:400;">(Optional)</span></label>
+          <textarea class="mc-textarea" name="additional_notes"
+                    placeholder="e.g. Please call first before visiting"></textarea>
+        </div>
+
+        <div class="mc-form-actions">
+          <a href="{% url 'resident_dashboard' %}" class="mc-btn mc-btn--ghost">Cancel</a>
+          <button class="mc-btn mc-btn--gold" type="submit">Submit Concern</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

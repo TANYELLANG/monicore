@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load dict_extras %}
+{% block title %}Reports{% endblock %}
+{% block page_label %}Admin{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+
+{% block sidebar %}
+  {% include 'components/sidebar_admin.html' %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Top export button -->
+<div style="display:flex; justify-content:flex-end;">
+  <button class="mc-btn mc-btn--gold" onclick="exportReport()">
+    <i class="bi bi-download"></i> Export Report
+  </button>
+</div>
+
+<!-- Stat Cards -->
+<div class="mc-stats-grid">
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:var(--gold-dim); color:var(--gold);"><i class="bi bi-list-ul"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Total Concerns</div>
+      <div class="mc-stat-value" id="r-total">{{ total }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#f0fdf4; color:#22c55e;"><i class="bi bi-percent"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Resolution Rate</div>
+      <div class="mc-stat-value" id="r-rate">{{ rate }}%</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#fff7ed; color:#f97316;"><i class="bi bi-hourglass-split"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Pending</div>
+      <div class="mc-stat-value" id="r-pending">{{ pending }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#eff6ff; color:#3b82f6;"><i class="bi bi-arrow-repeat"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Ongoing</div>
+      <div class="mc-stat-value" id="r-ongoing">{{ ongoing }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- By Type & By Priority -->
+<div class="mc-panel-grid">
+
+  <div class="mc-panel">
+    <div class="mc-panel-head"><h2 class="mc-panel-title">Concerns by Type</h2></div>
+    <div class="mc-panel-body">
+      {% for t, count in by_type.items %}
+      <div class="mc-report-row">
+        <span class="mc-report-label">{{ t }}</span>
+        <div class="mc-report-bar-wrap">
+          <div class="mc-report-bar" style="width:{{ type_pcts|get_item:t }}%;"></div>
+        </div>
+        <span class="mc-report-count">{{ count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="mc-panel">
+    <div class="mc-panel-head"><h2 class="mc-panel-title">Concerns by Priority</h2></div>
+    <div class="mc-panel-body">
+      {% for p, count in by_priority.items %}
+      <div class="mc-report-row">
+        <span class="mc-report-label">{{ p }}</span>
+        <div class="mc-report-bar-wrap">
+          <div class="mc-report-bar mc-report-bar--{% if p == 'High' %}red{% elif p == 'Medium' %}amber{% else %}gray{% endif %}"
+               style="width:{{ priority_pcts|get_item:p }}%;"></div>
+        </div>
+        <span class="mc-report-count">{{ count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Status Overview -->
+<div class="mc-panel">
+  <div class="mc-panel-head"><h2 class="mc-panel-title">Status Overview</h2></div>
+  <div class="mc-panel-body">
+    <div class="mc-stats-grid">
+      <div class="mc-stat-card">
+        <div class="mc-stat-body" style="align-items:center; text-align:center; width:100%;">
+          <div class="mc-stat-label">Pending</div>
+          <div class="mc-stat-value" id="so-pending">{{ pending }}</div>
+          <div style="font-size:12px; color:var(--text-muted);" id="so-pending-pct">{{ pct_pending }}%</div>
+        </div>
+      </div>
+      <div class="mc-stat-card">
+        <div class="mc-stat-body" style="align-items:center; text-align:center; width:100%;">
+          <div class="mc-stat-label">Ongoing</div>
+          <div class="mc-stat-value" id="so-ongoing">{{ ongoing }}</div>
+          <div style="font-size:12px; color:var(--text-muted);" id="so-ongoing-pct">{{ pct_ongoing }}%</div>
+        </div>
+      </div>
+      <div class="mc-stat-card">
+        <div class="mc-stat-body" style="align-items:center; text-align:center; width:100%;">
+          <div class="mc-stat-label">Resolved</div>
+          <div class="mc-stat-value" id="so-resolved">{{ resolved }}</div>
+          <div style="font-size:12px; color:var(--text-muted);" id="so-resolved-pct">{{ pct_resolved }}%</div>
+        </div>
+      </div>
+      <div class="mc-stat-card mc-stat-card--gold">
+        <div class="mc-stat-body" style="align-items:center; text-align:center; width:100%;">
+          <div class="mc-stat-label">Total</div>
+          <div class="mc-stat-value">{{ total }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function exportReport() {
+    const rows = [
+      ['Metric', 'Value'],
+      ['Total Concerns', '{{ total }}'],
+      ['Resolution Rate', '{{ rate }}%'],
+      ['Pending', '{{ pending }}'],
+      ['Ongoing', '{{ ongoing }}'],
+      ['Resolved', '{{ resolved }}'],
+      {% for t, count in by_type.items %}['Type: {{ t }}', '{{ count }}'],{% endfor %}
+      {% for p, count in by_priority.items %}['Priority: {{ p }}', '{{ count }}'],{% endfor %}
+    ];
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'monicore_report.csv';
+    a.click();
+  }
+</script>
+{% endblock %}

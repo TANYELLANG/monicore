@@ -1,0 +1,32 @@
+{% load static %}
+<div class="mc-sidebar-brand">
+  <span class="mc-brand-name">MONICORE</span>
+  <span class="mc-brand-sub">8 Newtown Boulevard</span>
+</div>
+
+<div class="mc-sidebar-user">
+  <div class="mc-sidebar-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+  <div>
+    <div class="mc-sidebar-username">{{ user.get_full_name }}</div>
+    <div class="mc-sidebar-role">Administrator</div>
+  </div>
+</div>
+
+<nav class="mc-nav">
+  <span class="mc-nav-label">Main Menu</span>
+  <a href="{% url 'admin_dashboard' %}" class="mc-nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+    <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+  </a>
+  <a href="{% url 'admin_concerns' %}" class="mc-nav-item {% if request.resolver_match.url_name == 'admin_concerns' %}active{% endif %}">
+    <i class="bi bi-chat-square-text"></i><span>Manage Concerns</span>
+  </a>
+  <a href="{% url 'admin_reports' %}" class="mc-nav-item {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}">
+    <i class="bi bi-bar-chart-line"></i><span>Reports</span>
+  </a>
+</nav>
+
+<div class="mc-sidebar-footer">
+  <a href="{% url 'logout' %}" class="mc-nav-item mc-logout">
+    <i class="bi bi-box-arrow-left"></i><span>Logout</span>
+  </a>
+</div>

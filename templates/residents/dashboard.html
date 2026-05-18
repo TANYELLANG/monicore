@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_label %}Resident{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block sidebar %}
+  {% include 'components/sidebar_resident.html' %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Welcome Banner -->
+<div class="mc-welcome">
+  <div>
+    <div class="mc-welcome-title">Welcome back, {{ user.first_name|default:user.username }}!</div>
+    <div class="mc-welcome-sub">{% if user.unit %}Unit {{ user.unit }} · {% endif %}Here's a summary of your concerns.</div>
+  </div>
+  <a href="{% url 'resident_submit' %}" class="mc-btn mc-btn--gold">
+    <i class="bi bi-plus-lg"></i> Submit Concern
+  </a>
+</div>
+
+<!-- Stat Cards -->
+<div class="mc-stats-grid">
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#fff7ed; color:#f97316;"><i class="bi bi-hourglass-split"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Pending</div>
+      <div class="mc-stat-value">{{ pending_count }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#eff6ff; color:#3b82f6;"><i class="bi bi-arrow-repeat"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Ongoing</div>
+      <div class="mc-stat-value">{{ ongoing_count }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#f0fdf4; color:#22c55e;"><i class="bi bi-check-circle"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Resolved</div>
+      <div class="mc-stat-value">{{ resolved_count }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card mc-stat-card--gold">
+    <div class="mc-stat-icon" style="background:var(--gold-dim); color:var(--gold);"><i class="bi bi-list-ul"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Total Concerns</div>
+      <div class="mc-stat-value">{{ total_count }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Concerns -->
+<div class="mc-panel">
+  <div class="mc-panel-head">
+    <h2 class="mc-panel-title">Recent Concerns</h2>
+    <a href="{% url 'resident_track' %}" class="mc-btn mc-btn--ghost mc-btn--sm">View All</a>
+  </div>
+  <div class="mc-panel-body">
+    {% if concerns %}
+      <table class="mc-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Date Submitted</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in concerns %}
+          <tr>
+            <td><strong>{{ c.title }}</strong></td>
+            <td>{{ c.type }}</td>
+            <td>
+              <span class="mc-badge mc-badge--{% if c.status == 'pending' %}amber{% elif c.status == 'ongoing' %}blue{% else %}green{% endif %}">
+                {{ c.status|capfirst }}
+              </span>
+            </td>
+            <td>{{ c.created_at|date:"M d, Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="mc-empty mc-empty--lg">
+        <i class="bi bi-inbox"></i>
+        <span>No concerns submitted yet.</span>
+        <a href="{% url 'resident_submit' %}" class="mc-btn mc-btn--gold" style="margin-top:8px;">Submit your first concern</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

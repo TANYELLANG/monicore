@@ -1,0 +1,31 @@
+<div class="mc-sidebar-brand">
+  <span class="mc-brand-name">MONICORE</span>
+  <span class="mc-brand-sub">8 Newtown Boulevard</span>
+</div>
+
+<div class="mc-sidebar-user">
+  <div class="mc-sidebar-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+  <div>
+    <div class="mc-sidebar-username">{{ user.get_full_name }}</div>
+    <div class="mc-sidebar-role">Resident{% if user.unit %} · Unit {{ user.unit }}{% endif %}</div>
+  </div>
+</div>
+
+<nav class="mc-nav">
+  <span class="mc-nav-label">Main Menu</span>
+  <a href="{% url 'resident_dashboard' %}" class="mc-nav-item {% if request.resolver_match.url_name == 'resident_dashboard' %}active{% endif %}">
+    <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+  </a>
+  <a href="{% url 'resident_submit' %}" class="mc-nav-item {% if request.resolver_match.url_name == 'resident_submit' %}active{% endif %}">
+    <i class="bi bi-plus-circle"></i><span>Submit Concern</span>
+  </a>
+  <a href="{% url 'resident_track' %}" class="mc-nav-item {% if request.resolver_match.url_name == 'resident_track' %}active{% endif %}">
+    <i class="bi bi-list-check"></i><span>Track Concerns</span>
+  </a>
+</nav>
+
+<div class="mc-sidebar-footer">
+  <a href="{% url 'logout' %}" class="mc-nav-item mc-logout">
+    <i class="bi bi-box-arrow-left"></i><span>Logout</span>
+  </a>
+</div>

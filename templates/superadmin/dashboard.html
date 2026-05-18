@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}System Overview{% endblock %}
+{% block page_label %}Superadmin{% endblock %}
+{% block page_title %}System Overview{% endblock %}
+
+{% block sidebar %}
+  {% include 'components/sidebar_superadmin.html' %}
+{% endblock %}
+
+{% block content %}
+
+<!-- 6 Stat Cards -->
+<div class="mc-stats-grid mc-stats-grid--6">
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#f5f3ff; color:#7c3aed;"><i class="bi bi-people"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Total Users</div>
+      <div class="mc-stat-value">{{ total_users }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#f0fdf4; color:#22c55e;"><i class="bi bi-person-check"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Active Users</div>
+      <div class="mc-stat-value">{{ active_users }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card mc-stat-card--gold">
+    <div class="mc-stat-icon" style="background:var(--gold-dim); color:var(--gold);"><i class="bi bi-list-ul"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Total Concerns</div>
+      <div class="mc-stat-value">{{ total }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#fff7ed; color:#f97316;"><i class="bi bi-hourglass-split"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Pending</div>
+      <div class="mc-stat-value">{{ pending }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#eff6ff; color:#3b82f6;"><i class="bi bi-arrow-repeat"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Ongoing</div>
+      <div class="mc-stat-value">{{ ongoing }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#f0fdf4; color:#22c55e;"><i class="bi bi-check-circle"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Resolved</div>
+      <div class="mc-stat-value">{{ resolved }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Two Panels -->
+<div class="mc-panel-grid">
+
+  <!-- Recent Concerns -->
+  <div class="mc-panel">
+    <div class="mc-panel-head">
+      <h2 class="mc-panel-title">Recent Concerns</h2>
+      <a href="{% url 'superadmin_concerns' %}" class="mc-btn mc-btn--ghost mc-btn--sm">View All</a>
+    </div>
+    <div class="mc-panel-body">
+      {% if recent_concerns %}
+        {% for c in recent_concerns %}
+        <div class="mc-list-item">
+          <div>
+            <div style="font-weight:600; font-size:14px;">{{ c.title }}</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+              {{ c.submitted_by.get_full_name|default:c.submitted_by.username }}
+              {% if c.submitted_by.unit %}
+                · <span style="background:#e0f2fe; color:#0369a1; padding:1px 6px; border-radius:4px; font-weight:600;">Unit {{ c.submitted_by.unit }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <span class="mc-badge mc-badge--{% if c.status == 'pending' %}amber{% elif c.status == 'ongoing' %}blue{% else %}green{% endif %}">
+            {{ c.status|capfirst }}
+          </span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="mc-empty"><i class="bi bi-inbox"></i><span>No concerns yet.</span></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Users -->
+  <div class="mc-panel">
+    <div class="mc-panel-head">
+      <h2 class="mc-panel-title">Recent Users</h2>
+      <a href="{% url 'superadmin_users' %}" class="mc-btn mc-btn--ghost mc-btn--sm">View All</a>
+    </div>
+    <div class="mc-panel-body">
+      {% if recent_users %}
+        {% for u in recent_users %}
+        <div class="mc-list-item">
+          <div>
+            <div style="font-weight:600; font-size:14px;">{{ u.get_full_name|default:u.username }}</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">{{ u.email }}</div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+            <span class="mc-badge mc-badge--{% if u.role == 'SUPERADMIN' %}purple{% elif u.role == 'ADMIN' %}blue{% else %}gray{% endif %}">
+              {{ u.role|capfirst }}
+            </span>
+            <span style="font-size:11px; color:{% if u.is_active %}#22c55e{% else %}var(--text-muted){% endif %};">
+              {% if u.is_active %}Active{% else %}Inactive{% endif %}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="mc-empty"><i class="bi bi-people"></i><span>No users yet.</span></div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

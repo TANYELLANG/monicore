@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_label %}Admin{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block sidebar %}
+  {% include 'components/sidebar_admin.html' %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Stat Cards -->
+<div class="mc-stats-grid">
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#fff7ed; color:#f97316;"><i class="bi bi-hourglass-split"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Pending</div>
+      <div class="mc-stat-value">{{ pending }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#eff6ff; color:#3b82f6;"><i class="bi bi-arrow-repeat"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Ongoing</div>
+      <div class="mc-stat-value">{{ ongoing }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card">
+    <div class="mc-stat-icon" style="background:#f0fdf4; color:#22c55e;"><i class="bi bi-check-circle"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Resolved</div>
+      <div class="mc-stat-value">{{ resolved }}</div>
+    </div>
+  </div>
+  <div class="mc-stat-card mc-stat-card--gold">
+    <div class="mc-stat-icon" style="background:var(--gold-dim); color:var(--gold);"><i class="bi bi-list-ul"></i></div>
+    <div class="mc-stat-body">
+      <div class="mc-stat-label">Total Concerns</div>
+      <div class="mc-stat-value">{{ total }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Two Panels -->
+<div class="mc-panel-grid">
+
+  <!-- Recent Concerns -->
+  <div class="mc-panel">
+    <div class="mc-panel-head">
+      <h2 class="mc-panel-title">Recent Concerns</h2>
+      <a href="{% url 'admin_concerns' %}" class="mc-btn mc-btn--ghost mc-btn--sm">View All</a>
+    </div>
+    <div class="mc-panel-body">
+      {% if recent_concerns %}
+        {% for c in recent_concerns %}
+        <div class="mc-list-item">
+          <div>
+            <div style="font-weight:600; font-size:14px;">{{ c.title }}</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+              {{ c.type }} · {{ c.submitted_by.get_full_name|default:c.submitted_by.username }}
+              {% if c.submitted_by.unit %} · Unit {{ c.submitted_by.unit }}{% endif %}
+              · {{ c.created_at|date:"M d, Y" }}
+            </div>
+          </div>
+          <span class="mc-badge mc-badge--{% if c.status == 'pending' %}amber{% elif c.status == 'ongoing' %}blue{% else %}green{% endif %}">
+            {{ c.status|capfirst }}
+          </span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="mc-empty"><i class="bi bi-inbox"></i><span>No concerns yet.</span></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- High Priority -->
+  <div class="mc-panel">
+    <div class="mc-panel-head">
+      <h2 class="mc-panel-title">High Priority Concerns</h2>
+    </div>
+    <div class="mc-panel-body">
+      {% if high_concerns %}
+        {% for c in high_concerns %}
+        <div class="mc-list-item" style="border-left: 3px solid #ef4444; padding-left: 12px;">
+          <div>
+            <div style="font-weight:600; font-size:14px;">{{ c.title }}</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+              {{ c.type }} · {{ c.submitted_by.get_full_name|default:c.submitted_by.username }}
+              {% if c.submitted_by.unit %} · Unit {{ c.submitted_by.unit }}{% endif %}
+            </div>
+          </div>
+          <span class="mc-badge mc-badge--{% if c.status == 'pending' %}amber{% elif c.status == 'ongoing' %}blue{% else %}green{% endif %}">
+            {{ c.status|capfirst }}
+          </span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="mc-empty"><i class="bi bi-check-circle"></i><span>No high priority concerns.</span></div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

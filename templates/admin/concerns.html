@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load dict_extras %}
+{% block title %}Manage Concerns{% endblock %}
+{% block page_label %}Admin{% endblock %}
+{% block page_title %}Manage Concerns{% endblock %}
+
+{% block sidebar %}
+  {% include 'components/sidebar_admin.html' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="mc-panel">
+  <div class="mc-panel-head">
+    <h2 class="mc-panel-title">All Concerns</h2>
+    <span style="font-size:13px; color:var(--text-muted);">Review, assign, and update concern statuses</span>
+  </div>
+
+  <!-- Filters -->
+  <div style="padding: 16px 24px; border-bottom: 1px solid var(--border);">
+    <form method="GET" action="{% url 'admin_concerns' %}" class="mc-filter-form">
+      <input class="mc-input" type="text" name="search" value="{{ search }}"
+             placeholder="Search by title..." style="min-width:220px; flex:1;">
+
+      <select class="mc-select" name="type">
+        <option value="">All Types</option>
+        {% for t in 'Plumbing,Electrical,HVAC,Structural,Other'|split:',' %}
+          <option value="{{ t }}" {% if type_f == t %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+
+      <select class="mc-select" name="status">
+        <option value="">All Status</option>
+        <option value="pending"  {% if status_f == 'pending'  %}selected{% endif %}>Pending</option>
+        <option value="ongoing"  {% if status_f == 'ongoing'  %}selected{% endif %}>Ongoing</option>
+        <option value="resolved" {% if status_f == 'resolved' %}selected{% endif %}>Resolved</option>
+      </select>
+
+      <select class="mc-select" name="priority">
+        <option value="">All Priority</option>
+        <option value="High"   {% if priority_f == 'High'   %}selected{% endif %}>High</option>
+        <option value="Medium" {% if priority_f == 'Medium' %}selected{% endif %}>Medium</option>
+        <option value="Low"    {% if priority_f == 'Low'    %}selected{% endif %}>Low</option>
+      </select>
+
+      <!-- Quick Period Filter -->
+      <select class="mc-select" name="period">
+        <option value="">All Time</option>
+        <option value="today" {% if period == 'today' %}selected{% endif %}>Today</option>
+        <option value="week"  {% if period == 'week' %}selected{% endif %}>Last 7 Days</option>
+        <option value="month" {% if period == 'month' %}selected{% endif %}>Last 30 Days</option>
+        <option value="quarter" {% if period == 'quarter' %}selected{% endif %}>Last 3 Months</option>
+      </select>
+      
+      <!-- Date Range Pickers -->
+      <input class="mc-input" type="date" name="date_from" value="{{ date_from }}" placeholder="From" style="width:auto;">
+      <input class="mc-input" type="date" name="date_to" value="{{ date_to }}" placeholder="To" style="width:auto;">
+
+      <button class="mc-btn mc-btn--gold mc-btn--sm" type="submit">Filter</button>
+      <a href="{% url 'admin_concerns' %}" class="mc-btn mc-btn--ghost mc-btn--sm">Clear</a>
+    </form>
+  </div>
+
+  <!-- Active filters info -->
+  {% if date_from or date_to or period %}
+  <div style="padding: 8px 24px; background: #fefce8; border-bottom: 1px solid var(--border); font-size: 12px; color: #854d0e;">
+    <i class="bi bi-funnel"></i> 
+    Active date filter: 
+    {% if period %}
+      <strong>{{ period|title }}</strong>
+    {% elif date_from or date_to %}
+      {{ date_from|default:"Start" }} → {{ date_to|default:"Today" }}
+    {% endif %}
+    <span style="margin-left: 12px;">Total: {{ page_obj.paginator.count }} concern(s)</span>
+  </div>
+  {% endif %}
+
+  <div class="mc-panel-body">
+    {% if concerns %}
+      <table class="mc-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Resident</th>
+            <th>Unit</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in concerns %}
+          <tr>
+            <td><strong>{{ c.title }}</strong></td>
+            <td>{{ c.submitted_by.get_full_name|default:c.submitted_by.username }}</td>
+            <td>{{ c.submitted_by.unit|default:'-' }}</td>
+            <td>{{ c.type }}</td>
+            <td>
+              <span class="mc-badge mc-badge--{% if c.status == 'pending' %}amber{% elif c.status == 'ongoing' %}blue{% else %}green{% endif %}">
+                {{ c.status|capfirst }}
+              </span>
+            </td>
+            <td>
+              <span class="mc-badge mc-badge--{% if c.priority == 'High' %}red{% elif c.priority == 'Medium' %}amber{% else %}gray{% endif %}">
+                {{ c.priority }}
+              </span>
+            </td>
+            <td>{{ c.created_at|date:"M d, Y" }}</td>
+            <td>
+              <button class="mc-btn mc-btn--ghost mc-btn--sm"
+                      onclick="openModal(
+                        {{ c.id }},
+                        '{{ c.title|escapejs }}',
+                        '{{ c.submitted_by.get_full_name|default:c.submitted_by.username|escapejs }}',
+                        '{{ c.submitted_by.unit|default:'-'|escapejs }}',
+                        '{{ c.submitted_by.email|escapejs }}',
+                        '{{ c.type|escapejs }}',
+                        '{{ c.description|escapejs }}',
+                        '{{ c.preferred_date|default:'' }}',
+                        '{{ c.preferred_time|default:''|escapejs }}',
+                        '{{ c.additional_notes|default:''|escapejs }}',
+                        '{{ c.created_at|date:'M d, Y' }}',
+                        '{{ c.status|escapejs }}',
+                        '{{ c.priority|escapejs }}'
+                      )">
+                View / Edit
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      {% if page_obj.paginator.num_pages > 1 %}
+      <div style="padding: 12px 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 8px;">
+        {% if page_obj.has_previous %}
+          <a class="mc-btn mc-btn--ghost mc-btn--sm" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">← Prev</a>
+        {% endif %}
+        
+        <span style="font-size:13px; color: var(--text-muted);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+          <a class="mc-btn mc-btn--ghost mc-btn--sm" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Next →</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+    {% else %}
+      <div class="mc-empty mc-empty--lg">
+        <i class="bi bi-inbox"></i>
+        <span>No concerns found.</span>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- View / Edit Modal (same as superadmin, but with admin's JS update URL) -->
+<div class="mc-modal-backdrop" id="viewModal">
+  <div class="mc-modal" style="max-width:540px;">
+    <div class="mc-modal-head">
+      <h3 id="modalTitle">--</h3>
+      <button class="mc-modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div style="padding: 0 24px;">
+      <div class="mc-detail-row"><span class="mc-detail-label">Resident</span><span class="mc-detail-value" id="m-resident"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Unit</span><span class="mc-detail-value" id="m-unit"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Email</span><span class="mc-detail-value" id="m-email"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Type</span><span class="mc-detail-value" id="m-type"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Description</span><span class="mc-detail-value" id="m-desc"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Preferred Date</span><span class="mc-detail-value" id="m-date"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Preferred Time</span><span class="mc-detail-value" id="m-time"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Additional Notes</span><span class="mc-detail-value" id="m-notes"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Date Submitted</span><span class="mc-detail-value" id="m-created"></span></div>
+    </div>
+    <div style="padding: 16px 24px; display:flex; gap:10px; align-items:center; border-top: 1px solid var(--border); margin-top:8px; flex-wrap:wrap;">
+      <select class="mc-select" id="statusSelect" style="flex:1;">
+        <option value="pending">Pending</option>
+        <option value="ongoing">Ongoing</option>
+        <option value="resolved">Resolved</option>
+      </select>
+      <select class="mc-select" id="prioritySelect" style="flex:1;">
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <button class="mc-btn mc-btn--gold" onclick="updateConcern()">Update</button>
+    </div>
+    <div id="modalMsg" style="display:none; margin: 0 24px 16px; padding:10px 14px; border-radius:8px; font-size:13px;"></div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .mc-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    gap: 16px;
+  }
+  .mc-detail-label { color: var(--text-muted); flex-shrink: 0; }
+  .mc-detail-value { font-weight: 500; color: var(--text-dark); text-align: right; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let currentConcernId = null;
+
+  function openModal(id, title, resident, unit, email, type, desc, prefDate, prefTime, notes, created, status, priority) {
+    currentConcernId = id;
+    document.getElementById('modalTitle').innerText  = title;
+    document.getElementById('m-resident').innerText  = resident;
+    document.getElementById('m-unit').innerText      = unit;
+    document.getElementById('m-email').innerText     = email;
+    document.getElementById('m-type').innerText      = type;
+    document.getElementById('m-desc').innerText      = desc;
+    document.getElementById('m-date').innerText      = prefDate  || '-';
+    document.getElementById('m-time').innerText      = prefTime  || '-';
+    document.getElementById('m-notes').innerText     = notes     || '-';
+    document.getElementById('m-created').innerText   = created;
+    document.getElementById('statusSelect').value    = status;
+    document.getElementById('prioritySelect').value  = priority;
+    document.getElementById('modalMsg').style.display = 'none';
+    document.getElementById('viewModal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('viewModal').classList.remove('active');
+    currentConcernId = null;
+  }
+
+  function updateConcern() {
+    const status   = document.getElementById('statusSelect').value;
+    const priority = document.getElementById('prioritySelect').value;
+    const msgEl    = document.getElementById('modalMsg');
+
+    fetch(`/admin-panel/concerns/${currentConcernId}/update/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}',
+      },
+      body: JSON.stringify({ status, priority }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        msgEl.style.display = 'block';
+        msgEl.style.background = '#dcfce7';
+        msgEl.style.color = '#166534';
+        msgEl.innerText = 'Updated successfully!';
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        msgEl.style.display = 'block';
+        msgEl.style.background = '#fee2e2';
+        msgEl.style.color = '#991b1b';
+        msgEl.innerText = data.error || 'Failed to update.';
+      }
+    })
+    .catch(() => {
+      msgEl.style.display = 'block';
+      msgEl.style.background = '#fee2e2';
+      msgEl.style.color = '#991b1b';
+      msgEl.innerText = 'Could not connect.';
+    });
+  }
+</script>
+{% endblock %}

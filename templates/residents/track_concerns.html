@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load dict_extras %}
+{% block title %}Track Concerns{% endblock %}
+{% block page_label %}Resident{% endblock %}
+{% block page_title %}Track My Concerns{% endblock %}
+
+{% block sidebar %}
+  {% include 'components/sidebar_resident.html' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="mc-panel">
+  <div class="mc-panel-head">
+    <h2 class="mc-panel-title">My Concerns</h2>
+    <span style="font-size:13px; color:var(--text-muted);">
+      Showing {{ concerns|length }} of {{ total_count }} concerns
+    </span>
+  </div>
+
+  <!-- Filters -->
+  <div style="padding: 16px 24px; border-bottom: 1px solid var(--border);">
+    <form method="GET" action="{% url 'resident_track' %}" class="mc-filter-form">
+      <input class="mc-input" type="text" name="search" value="{{ search }}"
+             placeholder="Search by title..." style="min-width:200px;">
+
+      <select class="mc-select" name="type">
+        <option value="">All Types</option>
+        {% for t in 'Plumbing,Electrical,HVAC,Structural,Other'|split:',' %}
+          <option value="{{ t }}" {% if type_f == t %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+
+      <select class="mc-select" name="status">
+        <option value="">All Status</option>
+        <option value="pending"  {% if status_f == 'pending'  %}selected{% endif %}>Pending</option>
+        <option value="ongoing"  {% if status_f == 'ongoing'  %}selected{% endif %}>Ongoing</option>
+        <option value="resolved" {% if status_f == 'resolved' %}selected{% endif %}>Resolved</option>
+      </select>
+
+      <input class="mc-input" type="date" name="date_from" value="{{ date_from }}" style="width:auto;">
+      <input class="mc-input" type="date" name="date_to"   value="{{ date_to }}"   style="width:auto;">
+
+      <button class="mc-btn mc-btn--gold mc-btn--sm" type="submit">Filter</button>
+      <a href="{% url 'resident_track' %}" class="mc-btn mc-btn--ghost mc-btn--sm">Clear</a>
+    </form>
+  </div>
+
+  <div class="mc-panel-body">
+    {% if concerns %}
+      <table class="mc-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Date Submitted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in concerns %}
+          <tr>
+            <td><strong>{{ c.title }}</strong></td>
+            <td>{{ c.type }}</td>
+            <td>
+              <span class="mc-badge mc-badge--{% if c.status == 'pending' %}amber{% elif c.status == 'ongoing' %}blue{% else %}green{% endif %}">
+                {{ c.status|capfirst }}
+              </span>
+            </td>
+            <td>{{ c.created_at|date:"M d, Y" }}</td>
+            <td>
+              <button class="mc-btn mc-btn--ghost mc-btn--sm"
+                      onclick="openModal({{ c.id }}, '{{ c.title|escapejs }}', '{{ c.type }}',
+                               '{{ c.status }}', '{{ c.description|escapejs }}',
+                               '{{ c.preferred_date|default:'' }}', '{{ c.preferred_time|default:''|escapejs }}',
+                               '{{ c.additional_notes|default:''|escapejs }}', '{{ c.created_at|date:'M d, Y' }}')">
+                View
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="mc-empty mc-empty--lg">
+        <i class="bi bi-inbox"></i>
+        <span>No concerns found.</span>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- View Modal -->
+<div class="mc-modal-backdrop" id="viewModal">
+  <div class="mc-modal" style="max-width:520px;">
+    <div class="mc-modal-head">
+      <h3 id="modalTitle">--</h3>
+      <button class="mc-modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div style="padding: 20px 24px; display:flex; flex-direction:column; gap:0;">
+      <div class="mc-detail-row"><span class="mc-detail-label">Type</span><span class="mc-detail-value" id="m-type"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Status</span><span class="mc-detail-value" id="m-status"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Description</span><span class="mc-detail-value" id="m-desc"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Preferred Date</span><span class="mc-detail-value" id="m-date"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Preferred Time</span><span class="mc-detail-value" id="m-time"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Additional Notes</span><span class="mc-detail-value" id="m-notes"></span></div>
+      <div class="mc-detail-row"><span class="mc-detail-label">Date Submitted</span><span class="mc-detail-value" id="m-created"></span></div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .mc-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    gap: 16px;
+  }
+  .mc-detail-label { color: var(--text-muted); flex-shrink: 0; }
+  .mc-detail-value { font-weight: 500; color: var(--text-dark); text-align: right; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function openModal(id, title, type, status, desc, prefDate, prefTime, notes, created) {
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('m-type').innerText    = type;
+    document.getElementById('m-desc').innerText    = desc;
+    document.getElementById('m-date').innerText    = prefDate || '-';
+    document.getElementById('m-time').innerText    = prefTime || '-';
+    document.getElementById('m-notes').innerText   = notes    || '-';
+    document.getElementById('m-created').innerText = created;
+
+    const statusColors = { pending: '#f97316', ongoing: '#3b82f6', resolved: '#22c55e' };
+    document.getElementById('m-status').innerHTML =
+      `<span style="color:${statusColors[status] || '#000'}; font-weight:600;">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+
+    document.getElementById('viewModal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('viewModal').classList.remove('active');
+  }
+</script>
+{% endblock %}
