@@ -11,6 +11,8 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['monicore.onrender.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
+    'cloudinary_storage',
+    'cloudinary',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -111,8 +113,14 @@ LOGGING = {
     },
 }
 
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 X_FRAME_OPTIONS = 'SAMEORIGIN'
-WHITENOISE_MEDIA_ROOT = MEDIA_ROOT
+
+# Cloudinary settings — replace with your actual credentials
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'your-cloud-name',
+    'API_KEY': 'your-api-key',
+    'API_SECRET': 'your-api-secret',
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
