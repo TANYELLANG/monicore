@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from cloudinary_storage.storage import MediaCloudinaryStorage
 
 
 class User(AbstractUser):
@@ -54,7 +55,7 @@ class Concern(models.Model):
     preferred_date = models.DateField(null=True, blank=True)
     preferred_time = models.CharField(max_length=50, choices=TIME_CHOICES, null=True, blank=True)
     additional_notes = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='concerns/', blank=True, null=True)
+    image = models.ImageField(upload_to='concerns/', blank=True, null=True, storage=MediaCloudinaryStorage())
     submitted_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
