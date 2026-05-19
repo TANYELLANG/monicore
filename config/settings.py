@@ -117,10 +117,10 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
-# Cloudinary settings — replace with your actual credentials
+# Cloudinary
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'your-cloud-name',
-    'API_KEY': 'your-api-key',
-    'API_SECRET': 'your-api-secret',
+    'CLOUD_NAME': 'db8nbbyx8',
+    'API_KEY': '716475269792628',
+    'API_SECRET': 'VyA3-8rn8LmF_WOaAkpaogM_t6o',
 }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
