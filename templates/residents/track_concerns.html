@@ -75,7 +75,7 @@
                                '{{ c.status }}', '{{ c.description|escapejs }}',
                                '{{ c.preferred_date|default:'' }}', '{{ c.preferred_time|default:''|escapejs }}',
                                '{{ c.additional_notes|default:''|escapejs }}', '{{ c.created_at|date:'M d, Y' }}',
-                               '{% if c.image %}{{ c.image.url|escapejs }}{% endif %}')">
+                               '{% if c.image %}{{ c.image.url }}{% endif %}')">
                 View
               </button>
             </td>
