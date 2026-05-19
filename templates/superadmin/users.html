@@ -134,9 +134,34 @@
         </select>
       </div>
       <div class="mc-form-group" id="add-unit-group" style="display:none;">
-        <label class="mc-label">Unit Number <span class="mc-required">*</span></label>
-        <input class="mc-input mc-input--full" type="text" id="add-unit" placeholder="e.g. 4B">
-      </div>
+    <label class="mc-label">Unit Number <span class="mc-required">*</span></label>
+    <div style="display:flex; gap:8px;">
+        <select class="mc-select" id="add-cluster" style="flex:1;">
+            <option value="">Cluster</option>
+            <option value="C1">C1</option>
+            <option value="C2">C2</option>
+            <option value="C3">C3</option>
+            <option value="C4">C4</option>
+        </select>
+        <select class="mc-select" id="add-floor" style="flex:1;">
+            <option value="">Floor</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+            <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+        </select>
+        <select class="mc-select" id="add-unit-letter" style="flex:1;">
+            <option value="">Unit</option>
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+            <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+            <option value="M">M</option><option value="N">N</option>
+        </select>
+    </div>
+</div>
       <div class="mc-form-group">
         <label class="mc-label">Password <span class="mc-required">*</span></label>
         <input class="mc-input mc-input--full" type="password" id="add-pass"
@@ -204,9 +229,34 @@
         </select>
       </div>
       <div class="mc-form-group" id="edit-unit-group" style="display:none;">
-        <label class="mc-label">Unit Number</label>
-        <input class="mc-input mc-input--full" type="text" id="edit-unit" placeholder="e.g. 4B">
-      </div>
+    <label class="mc-label">Unit Number</label>
+    <div style="display:flex; gap:8px;">
+        <select class="mc-select" id="edit-cluster" style="flex:1;">
+            <option value="">Cluster</option>
+            <option value="C1">C1</option>
+            <option value="C2">C2</option>
+            <option value="C3">C3</option>
+            <option value="C4">C4</option>
+        </select>
+        <select class="mc-select" id="edit-floor" style="flex:1;">
+            <option value="">Floor</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+            <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+        </select>
+        <select class="mc-select" id="edit-unit-letter" style="flex:1;">
+            <option value="">Unit</option>
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+            <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+            <option value="M">M</option><option value="N">N</option>
+        </select>
+    </div>
+</div>
     </div>
     <div class="mc-modal-footer" style="padding:16px 24px;">
       <button class="mc-btn mc-btn--ghost" onclick="closeEditModal()">Cancel</button>
@@ -329,7 +379,8 @@
   function openAddModal()  { hideMsg('addMsg'); document.getElementById('addModal').classList.add('active'); }
   function closeAddModal() {
     document.getElementById('addModal').classList.remove('active');
-    ['add-first','add-last','add-email','add-pass','add-unit'].forEach(id => document.getElementById(id).value = '');
+    ['add-first','add-last','add-email','add-pass'].forEach(id => document.getElementById(id).value = '');
+['add-cluster','add-floor','add-unit-letter'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('add-role').value = '';
     document.getElementById('add-unit-group').style.display = 'none';
     document.getElementById('add-bar').style.width = '0';
@@ -341,10 +392,13 @@
     const last  = document.getElementById('add-last').value.trim();
     const email = document.getElementById('add-email').value.trim();
     const role  = document.getElementById('add-role').value;
-    const unit  = document.getElementById('add-unit').value.trim();
+    const cluster = document.getElementById('add-cluster').value;
+    const floor   = document.getElementById('add-floor').value;
+    const letter  = document.getElementById('add-unit-letter').value;
+    const unit    = cluster + '-' + floor + letter;
     const pass  = document.getElementById('add-pass').value;
     if (!first || !last || !email || !role || !pass) { msg('addMsg','Fill in all required fields.',false); return; }
-    if (role === 'RESIDENT' && !unit) { msg('addMsg','Unit is required for Residents.',false); return; }
+    if (role === 'RESIDENT' && (!cluster || !floor || !letter)) { msg('addMsg','Complete unit is required for Residents.',false); return; }
     const btn = document.getElementById('add-submit-btn');
     btn.disabled = true; btn.innerText = 'Creating…';
     apiFetch("{% url 'ajax_create_user' %}", 'POST', {
@@ -423,7 +477,10 @@
     const first = document.getElementById('edit-first').value.trim();
     const last  = document.getElementById('edit-last').value.trim();
     const role  = document.getElementById('edit-role').value;
-    const unit  = document.getElementById('edit-unit').value.trim();
+    const cluster = document.getElementById('edit-cluster').value;
+    const floor   = document.getElementById('edit-floor').value;
+    const letter  = document.getElementById('edit-unit-letter').value;
+    const unit    = cluster + '-' + floor + letter;
     if (!first || !last) { msg('editMsg','Name is required.',false); return; }
     const btn = document.getElementById('edit-submit-btn');
     btn.disabled = true; btn.innerText = 'Saving…';
