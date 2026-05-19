@@ -106,23 +106,24 @@
             <td>{{ c.created_at|date:"M d, Y" }}</td>
             <td>
               <button class="mc-btn mc-btn--ghost mc-btn--sm"
-        onclick="openModal(
-          {{ c.id }},
-          '{{ c.title|escapejs }}',
-          '{{ c.submitted_by.get_full_name|default:c.submitted_by.username|escapejs }}',
-          '{{ c.submitted_by.unit|default:'-'|escapejs }}',
-          '{{ c.submitted_by.email|escapejs }}',
-          '{{ c.type|escapejs }}',
-          '{{ c.description|escapejs }}',
-          '{{ c.preferred_date|default:'' }}',
-          '{{ c.preferred_time|default:''|escapejs }}',
-          '{{ c.additional_notes|default:''|escapejs }}',
-          '{{ c.created_at|date:'M d, Y' }}',
-          '{{ c.status|escapejs }}',
-          '{{ c.priority|escapejs }}'
-        )">
-  View / Edit
-</button>
+                      onclick="openModal(
+                        {{ c.id }},
+                        '{{ c.title|escapejs }}',
+                        '{{ c.submitted_by.get_full_name|default:c.submitted_by.username|escapejs }}',
+                        '{{ c.submitted_by.unit|default:'-'|escapejs }}',
+                        '{{ c.submitted_by.email|escapejs }}',
+                        '{{ c.type|escapejs }}',
+                        '{{ c.description|escapejs }}',
+                        '{{ c.preferred_date|default:'' }}',
+                        '{{ c.preferred_time|default:''|escapejs }}',
+                        '{{ c.additional_notes|default:''|escapejs }}',
+                        '{{ c.created_at|date:'M d, Y' }}',
+                        '{{ c.status|escapejs }}',
+                        '{{ c.priority|escapejs }}',
+                        '{{ c.image.url|default:''|escapejs }}'
+                      )">
+                View / Edit
+              </button>
             </td>
           </tr>
           {% endfor %}
@@ -153,7 +154,7 @@
   </div>
 </div>
 
-<!-- Modal (unchanged) -->
+<!-- Modal -->
 <div class="mc-modal-backdrop" id="viewModal">
   <div class="mc-modal" style="max-width:540px;">
     <div class="mc-modal-head">
@@ -170,6 +171,12 @@
       <div class="mc-detail-row"><span class="mc-detail-label">Preferred Time</span><span class="mc-detail-value" id="m-time"></span></div>
       <div class="mc-detail-row"><span class="mc-detail-label">Notes</span><span class="mc-detail-value" id="m-notes"></span></div>
       <div class="mc-detail-row"><span class="mc-detail-label">Submitted</span><span class="mc-detail-value" id="m-created"></span></div>
+      <div class="mc-detail-row" id="m-image-row" style="display:none;">
+        <span class="mc-detail-label">Photo</span>
+        <span class="mc-detail-value">
+          <img id="m-image" src="" style="max-width:200px; max-height:200px; border-radius:8px; cursor:pointer;" onclick="window.open(this.src)">
+        </span>
+      </div>
     </div>
     <div style="padding: 16px 24px; display:flex; gap:10px; align-items:center; border-top: 1px solid var(--border); margin-top:8px;">
       <select class="mc-select" id="statusSelect" style="flex:1;">
@@ -202,7 +209,7 @@
 <script>
   let currentConcernId = null;
 
-  function openModal(id, title, resident, unit, email, type, desc, prefDate, prefTime, notes, created, status, priority) {
+  function openModal(id, title, resident, unit, email, type, desc, prefDate, prefTime, notes, created, status, priority, image) {
     currentConcernId = id;
     document.getElementById('modalTitle').innerText  = title;
     document.getElementById('m-resident').innerText  = resident;
@@ -216,6 +223,15 @@
     document.getElementById('m-created').innerText   = created;
     document.getElementById('statusSelect').value    = status;
     document.getElementById('prioritySelect').value  = priority;
+    
+    // Show or hide the image
+    if (image) {
+      document.getElementById('m-image').src = image;
+      document.getElementById('m-image-row').style.display = 'flex';
+    } else {
+      document.getElementById('m-image-row').style.display = 'none';
+    }
+    
     document.getElementById('modalMsg').style.display = 'none';
     document.getElementById('viewModal').classList.add('active');
   }
