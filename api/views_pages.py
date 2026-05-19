@@ -456,15 +456,16 @@ def resident_submit(request):
             return render(request, 'residents/submit_concern.html')
 
         Concern.objects.create(
-            title=title,
-            type=type_,
-            description=description,
-            priority='Medium',
-            preferred_date=preferred_date,
-            preferred_time=preferred_time,
-            additional_notes=additional_notes,
-            submitted_by=request.user,
-        )
+    title=title,
+    type=type_,
+    description=description,
+    priority='Medium',
+    preferred_date=preferred_date,
+    preferred_time=preferred_time,
+    additional_notes=additional_notes,
+    image=request.FILES.get('image'),   # ← ADD THIS
+    submitted_by=request.user,
+)
         messages.success(request, 'Concern submitted successfully.')
         return redirect('resident_track')
     return render(request, 'residents/submit_concern.html')
