@@ -124,7 +124,7 @@
                         '{{ c.created_at|date:'M d, Y' }}',
                         '{{ c.status|escapejs }}',
                         '{{ c.priority|escapejs }}',
-                        '{{ c.image.url|default:''|escapejs }}'
+                        '{% if c.image %}{{ c.image.url|escapejs }}{% endif %}'
                       )">
                 View / Edit
               </button>
