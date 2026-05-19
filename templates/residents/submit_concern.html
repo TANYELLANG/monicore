@@ -17,7 +17,7 @@
     </div>
     <div class="mc-panel-body">
 
-      <form method="POST" action="{% url 'resident_submit' %}">
+      <form method="POST" action="{% url 'resident_submit' %}" enctype="multipart/form-data">
         {% csrf_token %}
 
         <div class="mc-form-group" style="margin-bottom:16px;">
@@ -78,6 +78,13 @@
           <label class="mc-label">Additional Notes <span style="color:var(--text-muted); font-weight:400;">(Optional)</span></label>
           <textarea class="mc-textarea" name="additional_notes"
                     placeholder="e.g. Please call first before visiting"></textarea>
+        </div>
+
+        <!-- Photo Upload -->
+        <div class="mc-form-group" style="margin-bottom:16px;">
+          <label class="mc-label">Attach Photo <span style="color:var(--text-muted); font-weight:400;">(Optional)</span></label>
+          <input class="mc-input mc-input--full" type="file" name="image" accept="image/*">
+          <small style="font-size:11px; color:var(--text-muted); margin-top:4px;">Upload a photo of the issue (max 5MB)</small>
         </div>
 
         <div class="mc-form-actions">
