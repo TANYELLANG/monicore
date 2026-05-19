@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from .models import User, Concern
+from .models import User, Concern, Unit
 
 
 # ─── helpers ────────────────────────────────────────────────
@@ -29,10 +29,6 @@ def role_required(role):
 
 
 def apply_concern_filters(request, base_qs):
-    """
-    Applies search, type, status, priority, date range, and period filters
-    to a Concern queryset. Returns (filtered_qs, filter_data_dict).
-    """
     qs = base_qs
     search = request.GET.get('search', '')
     type_f = request.GET.get('type', '')
@@ -47,7 +43,9 @@ def apply_concern_filters(request, base_qs):
             Q(title__icontains=search) |
             Q(submitted_by__first_name__icontains=search) |
             Q(submitted_by__last_name__icontains=search) |
-            Q(submitted_by__unit__icontains=search)
+            Q(submitted_by__unit__tower__name__icontains=search) |
+            Q(submitted_by__unit__floor__icontains=search) |
+            Q(submitted_by__unit__letter__icontains=search)
         )
     if type_f:
         qs = qs.filter(type=type_f)
@@ -157,10 +155,9 @@ def superadmin_dashboard(request):
 
 @role_required('SUPERADMIN')
 def superadmin_concerns(request):
-    qs = Concern.objects.select_related('submitted_by').order_by('-created_at')
+    qs = Concern.objects.select_related('submitted_by__unit__tower').order_by('-created_at')
     qs, filter_data = apply_concern_filters(request, qs)
 
-    # Pagination: 10 items per page
     paginator = Paginator(qs, 10)
     page_number = request.GET.get('page', 1)
     try:
@@ -201,7 +198,7 @@ def superadmin_reports(request):
 
 @role_required('SUPERADMIN')
 def superadmin_users(request):
-    users = User.objects.order_by('-date_joined')
+    users = User.objects.select_related('unit__tower').order_by('-date_joined')
     search    = request.GET.get('search', '')
     role_f    = request.GET.get('role', '')
     status_f  = request.GET.get('status', '')
@@ -210,7 +207,9 @@ def superadmin_users(request):
             Q(first_name__icontains=search) |
             Q(last_name__icontains=search)  |
             Q(email__icontains=search)      |
-            Q(unit__icontains=search)
+            Q(unit__tower__name__icontains=search) |
+            Q(unit__floor__icontains=search) |
+            Q(unit__letter__icontains=search)
         )
     if role_f:
         users = users.filter(role=role_f)
@@ -224,7 +223,7 @@ def superadmin_users(request):
     })
 
 
-# ─── superadmin AJAX endpoints (used by users.html) ─────────
+# ─── superadmin AJAX endpoints ─────────────────────────────
 
 @role_required('SUPERADMIN')
 def ajax_create_user(request):
@@ -235,7 +234,7 @@ def ajax_create_user(request):
     last_name = data.get('last_name', '').strip()
     email = data.get('email', '').strip()
     role = data.get('role', '')
-    unit = data.get('unit', '')
+    unit_id = data.get('unit_id', '')
     password = data.get('password', '')
     
     if not all([first_name, last_name, email, role, password]):
@@ -243,6 +242,8 @@ def ajax_create_user(request):
     
     if User.objects.filter(email=email).exists():
         return JsonResponse({'error': 'Email already exists.'}, status=400)
+    
+    unit = Unit.objects.get(id=unit_id) if unit_id else None
     
     username = f"{first_name} {last_name}"
     base_username = username
@@ -257,7 +258,7 @@ def ajax_create_user(request):
         first_name=first_name,
         last_name=last_name,
         role=role,
-        unit=unit if role == 'RESIDENT' else '',
+        unit=unit if role == 'RESIDENT' else None,
         is_active=True,
     )
     user.set_password(password)
@@ -297,7 +298,10 @@ def ajax_edit_user(request, user_id):
     user.last_name  = data.get('last_name',  user.last_name).strip()
     user.username   = f"{user.first_name} {user.last_name}"
     user.role       = data.get('role', user.role)
-    user.unit       = data.get('unit', '') if user.role == 'RESIDENT' else ''
+    
+    unit_id = data.get('unit_id', '')
+    user.unit = Unit.objects.get(id=unit_id) if unit_id and user.role == 'RESIDENT' else None
+    
     user.save()
     return JsonResponse({'success': True})
 
@@ -373,10 +377,9 @@ def admin_dashboard(request):
 
 @role_required('ADMIN')
 def admin_concerns(request):
-    qs = Concern.objects.select_related('submitted_by').order_by('-created_at')
+    qs = Concern.objects.select_related('submitted_by__unit__tower').order_by('-created_at')
     qs, filter_data = apply_concern_filters(request, qs)
 
-    # Pagination: 10 items per page
     paginator = Paginator(qs, 10)
     page_number = request.GET.get('page', 1)
     try:
@@ -456,16 +459,16 @@ def resident_submit(request):
             return render(request, 'residents/submit_concern.html')
 
         Concern.objects.create(
-    title=title,
-    type=type_,
-    description=description,
-    priority='Medium',
-    preferred_date=preferred_date,
-    preferred_time=preferred_time,
-    additional_notes=additional_notes,
-    image=request.FILES.get('image'),   # ← ADD THIS
-    submitted_by=request.user,
-)
+            title=title,
+            type=type_,
+            description=description,
+            priority='Medium',
+            preferred_date=preferred_date,
+            preferred_time=preferred_time,
+            additional_notes=additional_notes,
+            image=request.FILES.get('image'),
+            submitted_by=request.user,
+        )
         messages.success(request, 'Concern submitted successfully.')
         return redirect('resident_track')
     return render(request, 'residents/submit_concern.html')
