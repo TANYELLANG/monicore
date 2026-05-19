@@ -100,7 +100,6 @@
   </div>
 </div>
 
-
 <!-- ── ADD USER MODAL ── -->
 <div class="mc-modal-backdrop" id="addModal">
   <div class="mc-modal">
@@ -134,16 +133,16 @@
         </select>
       </div>
       <div class="mc-form-group" id="add-unit-group" style="display:none;">
-    <label class="mc-label">Unit Number <span class="mc-required">*</span></label>
-    <div style="display:flex; gap:8px;">
-        <select class="mc-select" id="add-cluster" style="flex:1;">
+        <label class="mc-label">Unit Number <span class="mc-required">*</span></label>
+        <div style="display:flex; gap:8px;">
+          <select class="mc-select" id="add-cluster" style="flex:1;">
             <option value="">Cluster</option>
             <option value="C1">C1</option>
             <option value="C2">C2</option>
             <option value="C3">C3</option>
             <option value="C4">C4</option>
-        </select>
-        <select class="mc-select" id="add-floor" style="flex:1;">
+          </select>
+          <select class="mc-select" id="add-floor" style="flex:1;">
             <option value="">Floor</option>
             <option value="1">1</option><option value="2">2</option><option value="3">3</option>
             <option value="4">4</option><option value="5">5</option><option value="6">6</option>
@@ -151,17 +150,17 @@
             <option value="10">10</option><option value="11">11</option><option value="12">12</option>
             <option value="13">13</option><option value="14">14</option><option value="15">15</option>
             <option value="16">16</option><option value="17">17</option><option value="18">18</option>
-        </select>
-        <select class="mc-select" id="add-unit-letter" style="flex:1;">
+          </select>
+          <select class="mc-select" id="add-unit-letter" style="flex:1;">
             <option value="">Unit</option>
             <option value="A">A</option><option value="B">B</option><option value="C">C</option>
             <option value="D">D</option><option value="E">E</option><option value="F">F</option>
             <option value="G">G</option><option value="H">H</option><option value="I">I</option>
             <option value="J">J</option><option value="K">K</option><option value="L">L</option>
             <option value="M">M</option><option value="N">N</option>
-        </select>
-    </div>
-</div>
+          </select>
+        </div>
+      </div>
       <div class="mc-form-group">
         <label class="mc-label">Password <span class="mc-required">*</span></label>
         <input class="mc-input mc-input--full" type="password" id="add-pass"
@@ -178,7 +177,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- ── VIEW USER MODAL ── -->
 <div class="mc-modal-backdrop" id="viewModal">
@@ -198,7 +196,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- ── EDIT USER MODAL ── -->
 <div class="mc-modal-backdrop" id="editModal">
@@ -229,16 +226,16 @@
         </select>
       </div>
       <div class="mc-form-group" id="edit-unit-group" style="display:none;">
-    <label class="mc-label">Unit Number</label>
-    <div style="display:flex; gap:8px;">
-        <select class="mc-select" id="edit-cluster" style="flex:1;">
+        <label class="mc-label">Unit Number</label>
+        <div style="display:flex; gap:8px;">
+          <select class="mc-select" id="edit-cluster" style="flex:1;">
             <option value="">Cluster</option>
             <option value="C1">C1</option>
             <option value="C2">C2</option>
             <option value="C3">C3</option>
             <option value="C4">C4</option>
-        </select>
-        <select class="mc-select" id="edit-floor" style="flex:1;">
+          </select>
+          <select class="mc-select" id="edit-floor" style="flex:1;">
             <option value="">Floor</option>
             <option value="1">1</option><option value="2">2</option><option value="3">3</option>
             <option value="4">4</option><option value="5">5</option><option value="6">6</option>
@@ -246,17 +243,17 @@
             <option value="10">10</option><option value="11">11</option><option value="12">12</option>
             <option value="13">13</option><option value="14">14</option><option value="15">15</option>
             <option value="16">16</option><option value="17">17</option><option value="18">18</option>
-        </select>
-        <select class="mc-select" id="edit-unit-letter" style="flex:1;">
+          </select>
+          <select class="mc-select" id="edit-unit-letter" style="flex:1;">
             <option value="">Unit</option>
             <option value="A">A</option><option value="B">B</option><option value="C">C</option>
             <option value="D">D</option><option value="E">E</option><option value="F">F</option>
             <option value="G">G</option><option value="H">H</option><option value="I">I</option>
             <option value="J">J</option><option value="K">K</option><option value="L">L</option>
             <option value="M">M</option><option value="N">N</option>
-        </select>
-    </div>
-</div>
+          </select>
+        </div>
+      </div>
     </div>
     <div class="mc-modal-footer" style="padding:16px 24px;">
       <button class="mc-btn mc-btn--ghost" onclick="closeEditModal()">Cancel</button>
@@ -264,7 +261,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- ── RESET PASSWORD MODAL ── -->
 <div class="mc-modal-backdrop" id="resetModal">
@@ -295,7 +291,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- ── DELETE CONFIRM MODAL ── -->
 <div class="mc-modal-backdrop" id="deleteModal">
@@ -329,7 +324,6 @@
   let currentUser = null;
   const SELF_ID   = {{ request.user.id }};
 
-  // ── helpers ──────────────────────────────────────────
   function msg(elId, text, ok) {
     const el = document.getElementById(elId);
     el.style.cssText = ok
@@ -350,9 +344,9 @@
     const bar = document.getElementById(barId);
     const lbl = document.getElementById(lblId);
     let s = 0;
-    if (v.length >= 8)        s++;
-    if (/[A-Z]/.test(v))     s++;
-    if (/[0-9]/.test(v))     s++;
+    if (v.length >= 8) s++;
+    if (/[A-Z]/.test(v)) s++;
+    if (/[0-9]/.test(v)) s++;
     if (/[^A-Za-z0-9]/.test(v)) s++;
     const levels = [
       {w:'0%',c:'#e5e7eb',t:''},
@@ -362,10 +356,10 @@
       {w:'100%',c:'#16a34a',t:'Strong'},
     ];
     const lvl = v.length === 0 ? levels[0] : levels[s];
-    bar.style.width      = lvl.w;
+    bar.style.width = lvl.w;
     bar.style.background = lvl.c;
-    lbl.innerText        = lvl.t;
-    lbl.style.color      = lvl.c;
+    lbl.innerText = lvl.t;
+    lbl.style.color = lvl.c;
   }
   function apiFetch(url, method, body) {
     return fetch(url, {
@@ -376,11 +370,11 @@
   }
 
   // ── ADD ──────────────────────────────────────────────
-  function openAddModal()  { hideMsg('addMsg'); document.getElementById('addModal').classList.add('active'); }
+  function openAddModal() { hideMsg('addMsg'); document.getElementById('addModal').classList.add('active'); }
   function closeAddModal() {
     document.getElementById('addModal').classList.remove('active');
     ['add-first','add-last','add-email','add-pass'].forEach(id => document.getElementById(id).value = '');
-['add-cluster','add-floor','add-unit-letter'].forEach(id => document.getElementById(id).value = '');
+    ['add-cluster','add-floor','add-unit-letter'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('add-role').value = '';
     document.getElementById('add-unit-group').style.display = 'none';
     document.getElementById('add-bar').style.width = '0';
@@ -395,7 +389,6 @@
     const cluster = document.getElementById('add-cluster').value;
     const floor   = document.getElementById('add-floor').value;
     const letter  = document.getElementById('add-unit-letter').value;
-    const unit    = cluster + '-' + floor + letter;
     const pass  = document.getElementById('add-pass').value;
     if (!first || !last || !email || !role || !pass) { msg('addMsg','Fill in all required fields.',false); return; }
     if (role === 'RESIDENT' && (!cluster || !floor || !letter)) { msg('addMsg','Complete unit is required for Residents.',false); return; }
@@ -403,7 +396,7 @@
     btn.disabled = true; btn.innerText = 'Creating…';
     apiFetch("{% url 'ajax_create_user' %}", 'POST', {
       first_name: first, last_name: last, email, role,
-      unit: role === 'RESIDENT' ? unit : '', password: pass,
+      cluster: cluster, floor: floor, letter: letter, password: pass,
     }).then(data => {
       if (data.success) {
         msg('addMsg','Account created!', true);
@@ -417,7 +410,7 @@
 
   // ── VIEW ─────────────────────────────────────────────
   function openViewModal(id, name, email, role, unit, isActive, joined) {
-    currentId   = id;
+    currentId = id;
     currentUser = { id, name, email, role, unit, isActive };
     document.getElementById('view-name').innerText = name;
     document.getElementById('view-body').innerHTML = `
@@ -436,9 +429,7 @@
     const isSelf = id === SELF_ID;
     const toggleBtn = document.getElementById('view-toggle-btn');
     toggleBtn.innerText = isActive ? 'Deactivate' : 'Activate';
-    toggleBtn.className = isActive
-      ? 'mc-btn mc-btn--danger'
-      : 'mc-btn mc-btn--success';
+    toggleBtn.className = isActive ? 'mc-btn mc-btn--danger' : 'mc-btn mc-btn--success';
     toggleBtn.style.display = isSelf ? 'none' : '';
     document.getElementById('view-delete-btn').style.display = (!isSelf && !isActive) ? '' : 'none';
     hideMsg('viewMsg');
@@ -462,28 +453,21 @@
   }
 
   // ── EDIT ─────────────────────────────────────────────
-function openEditModal() {
+  function openEditModal() {
     if (!currentUser) return;
     document.getElementById('edit-first').value = currentUser.name.split(' ')[0] || '';
     document.getElementById('edit-last').value  = currentUser.name.split(' ').slice(1).join(' ') || '';
     document.getElementById('edit-role').value  = currentUser.role;
-    
-    // Parse the unit into cluster, floor, letter
     if (currentUser.unit && currentUser.unit.includes('-')) {
-        const parts = currentUser.unit.split('-');
-        document.getElementById('edit-cluster').value = parts[0] || '';
-        document.getElementById('edit-floor').value = parts[1] ? parts[1].slice(0, -1) : '';
-        document.getElementById('edit-unit-letter').value = parts[1] ? parts[1].slice(-1) : '';
-    } else {
-        document.getElementById('edit-cluster').value = '';
-        document.getElementById('edit-floor').value = '';
-        document.getElementById('edit-unit-letter').value = '';
+      const parts = currentUser.unit.split('-');
+      document.getElementById('edit-cluster').value = parts[0] || '';
+      document.getElementById('edit-floor').value = parts[1] ? parts[1].slice(0, -1) : '';
+      document.getElementById('edit-unit-letter').value = parts[1] ? parts[1].slice(-1) : '';
     }
-    
     document.getElementById('edit-unit-group').style.display = currentUser.role === 'RESIDENT' ? 'block' : 'none';
     hideMsg('editMsg');
     document.getElementById('editModal').classList.add('active');
-}
+  }
   function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
   function submitEdit() {
     const first = document.getElementById('edit-first').value.trim();
@@ -492,12 +476,12 @@ function openEditModal() {
     const cluster = document.getElementById('edit-cluster').value;
     const floor   = document.getElementById('edit-floor').value;
     const letter  = document.getElementById('edit-unit-letter').value;
-    const unit    = cluster + '-' + floor + letter;
     if (!first || !last) { msg('editMsg','Name is required.',false); return; }
     const btn = document.getElementById('edit-submit-btn');
     btn.disabled = true; btn.innerText = 'Saving…';
     apiFetch(`/ajax/users/${currentId}/edit/`, 'PATCH', {
-      first_name: first, last_name: last, role, unit: role === 'RESIDENT' ? unit : '',
+      first_name: first, last_name: last, role,
+      cluster: cluster, floor: floor, letter: letter,
     }).then(data => {
       if (data.success) {
         msg('editMsg','Saved!', true);
@@ -519,11 +503,11 @@ function openEditModal() {
   }
   function closeResetModal() { document.getElementById('resetModal').classList.remove('active'); }
   function submitReset() {
-    const pass    = document.getElementById('reset-pass').value;
+    const pass = document.getElementById('reset-pass').value;
     const confirm = document.getElementById('reset-confirm').value;
-    if (!pass || !confirm)   { msg('resetMsg','Fill both fields.',false); return; }
-    if (pass !== confirm)    { msg('resetMsg','Passwords do not match.',false); return; }
-    if (pass.length < 6)     { msg('resetMsg','Minimum 6 characters.',false); return; }
+    if (!pass || !confirm) { msg('resetMsg','Fill both fields.',false); return; }
+    if (pass !== confirm) { msg('resetMsg','Passwords do not match.',false); return; }
+    if (pass.length < 6) { msg('resetMsg','Minimum 6 characters.',false); return; }
     const btn = document.getElementById('reset-submit-btn');
     btn.disabled = true; btn.innerText = 'Resetting…';
     apiFetch(`/ajax/users/${currentId}/reset-password/`, 'PATCH', { new_password: pass }).then(data => {
