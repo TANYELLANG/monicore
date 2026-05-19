@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from .models import User, Concern, Unit
+from .models import User, Concern, Unit, Tower
 
 
 # ─── helpers ────────────────────────────────────────────────
@@ -234,7 +234,9 @@ def ajax_create_user(request):
     last_name = data.get('last_name', '').strip()
     email = data.get('email', '').strip()
     role = data.get('role', '')
-    unit_id = data.get('unit_id', '')
+    cluster = data.get('cluster', '')
+    floor = data.get('floor', '')
+    letter = data.get('letter', '')
     password = data.get('password', '')
     
     if not all([first_name, last_name, email, role, password]):
@@ -243,7 +245,10 @@ def ajax_create_user(request):
     if User.objects.filter(email=email).exists():
         return JsonResponse({'error': 'Email already exists.'}, status=400)
     
-    unit = Unit.objects.get(id=unit_id) if unit_id else None
+    unit = None
+    if cluster and floor and letter:
+        tower, _ = Tower.objects.get_or_create(name=cluster)
+        unit, _ = Unit.objects.get_or_create(tower=tower, floor=int(floor), letter=letter)
     
     username = f"{first_name} {last_name}"
     base_username = username
@@ -299,8 +304,16 @@ def ajax_edit_user(request, user_id):
     user.username   = f"{user.first_name} {user.last_name}"
     user.role       = data.get('role', user.role)
     
-    unit_id = data.get('unit_id', '')
-    user.unit = Unit.objects.get(id=unit_id) if unit_id and user.role == 'RESIDENT' else None
+    cluster = data.get('cluster', '')
+    floor = data.get('floor', '')
+    letter = data.get('letter', '')
+    
+    if cluster and floor and letter and user.role == 'RESIDENT':
+        tower, _ = Tower.objects.get_or_create(name=cluster)
+        unit, _ = Unit.objects.get_or_create(tower=tower, floor=int(floor), letter=letter)
+        user.unit = unit
+    else:
+        user.unit = None
     
     user.save()
     return JsonResponse({'success': True})
