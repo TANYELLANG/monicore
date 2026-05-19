@@ -3,6 +3,25 @@ from django.db import models
 from cloudinary_storage.storage import MediaCloudinaryStorage
 
 
+class Tower(models.Model):
+    name = models.CharField(max_length=10, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Unit(models.Model):
+    tower = models.ForeignKey(Tower, on_delete=models.CASCADE, related_name='units')
+    floor = models.IntegerField()
+    letter = models.CharField(max_length=2)
+
+    class Meta:
+        unique_together = ('tower', 'floor', 'letter')
+
+    def __str__(self):
+        return f"{self.tower.name}-{self.floor}{self.letter}"
+
+
 class User(AbstractUser):
 
     ROLE_CHOICES = (
@@ -16,7 +35,7 @@ class User(AbstractUser):
         choices=ROLE_CHOICES,
         default='RESIDENT'
     )
-    unit = models.CharField(max_length=50, blank=True, null=True)
+    unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, blank=True, related_name='residents')
 
 
 class Concern(models.Model):
@@ -55,7 +74,7 @@ class Concern(models.Model):
     preferred_date = models.DateField(null=True, blank=True)
     preferred_time = models.CharField(max_length=50, choices=TIME_CHOICES, null=True, blank=True)
     additional_notes = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='concerns/', blank=True, null=True, storage=MediaCloudinaryStorage())
+    image = models.ImageField(upload_to='', blank=True, null=True, storage=MediaCloudinaryStorage())
     submitted_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
