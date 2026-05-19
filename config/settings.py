@@ -11,7 +11,6 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['monicore.onrender.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
-    'cloudinary_storage',
     'cloudinary',
     'django.contrib.admin',
     'django.contrib.auth',
