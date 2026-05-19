@@ -462,16 +462,28 @@
   }
 
   // ── EDIT ─────────────────────────────────────────────
-  function openEditModal() {
+function openEditModal() {
     if (!currentUser) return;
     document.getElementById('edit-first').value = currentUser.name.split(' ')[0] || '';
     document.getElementById('edit-last').value  = currentUser.name.split(' ').slice(1).join(' ') || '';
     document.getElementById('edit-role').value  = currentUser.role;
-    document.getElementById('edit-unit').value  = currentUser.unit || '';
+    
+    // Parse the unit into cluster, floor, letter
+    if (currentUser.unit && currentUser.unit.includes('-')) {
+        const parts = currentUser.unit.split('-');
+        document.getElementById('edit-cluster').value = parts[0] || '';
+        document.getElementById('edit-floor').value = parts[1] ? parts[1].slice(0, -1) : '';
+        document.getElementById('edit-unit-letter').value = parts[1] ? parts[1].slice(-1) : '';
+    } else {
+        document.getElementById('edit-cluster').value = '';
+        document.getElementById('edit-floor').value = '';
+        document.getElementById('edit-unit-letter').value = '';
+    }
+    
     document.getElementById('edit-unit-group').style.display = currentUser.role === 'RESIDENT' ? 'block' : 'none';
     hideMsg('editMsg');
     document.getElementById('editModal').classList.add('active');
-  }
+}
   function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
   function submitEdit() {
     const first = document.getElementById('edit-first').value.trim();
